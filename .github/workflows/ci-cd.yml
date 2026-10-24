@@ -47,3 +47,16 @@ jobs:
           docker run -d -p 8080:3000 --name app node-cicd-pipeline:${{ github.sha }}
           sleep 3
           curl --fail http://localhost:8080/health
+
+   deploy: 
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+
+    steps:
+      - name: Trigger deploy on Render
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL}}
+        run: curl --fail -X POST "$DEPLOY_HOOK"
